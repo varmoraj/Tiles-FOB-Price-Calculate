@@ -1848,11 +1848,9 @@ function calculate(){
             ? fobSellingINR / rate
             : 0;
     const fobSqftINR =
-        totalSqft > 0
-            ? fobSellingINR /
-              totalSqft /
-              SQFT_PER_SQM
-            : 0;
+    totalSqft > 0
+        ? fobSellingINR / totalSqft
+        : 0;
     const fobSqmINR =
         totalSqm > 0
             ? fobSellingINR /
