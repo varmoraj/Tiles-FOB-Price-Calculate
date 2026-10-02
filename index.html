@@ -1,0 +1,2191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tile Export Price Calculator</title>
+<style>
+:root{
+    --bg:#f4f6f8;
+    --card:#ffffff;
+    --dark:#101827;
+    --dark2:#1d2738;
+    --text:#18212f;
+    --muted:#687386;
+    --border:#dfe4ea;
+    --accent:#315efb;
+    --green:#16805b;
+    --green-soft:#edf9f4;
+    --shadow:0 8px 28px rgba(16,24,39,.07);
+}
+*{
+    box-sizing:border-box;
+}
+body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:Inter,-apple-system,BlinkMacSystemFont,
+    "Segoe UI",Roboto,Arial,sans-serif;
+}
+.container{
+    width:min(1450px,94%);
+    margin:28px auto 60px;
+}
+.header{
+    margin-bottom:22px;
+}
+.header h1{
+    margin:0;
+    font-size:32px;
+    letter-spacing:-.7px;
+}
+.header p{
+    margin:7px 0 0;
+    color:var(--muted);
+    font-size:14px;
+}
+/* =========================================================
+   CURRENCY
+========================================================= */
+.currency-card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:18px;
+    padding:18px;
+    box-shadow:var(--shadow);
+    margin-bottom:20px;
+}
+.currency-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr 1fr;
+    gap:15px;
+}
+.currency-select-wrap{
+    display:flex;
+    flex-direction:column;
+    gap:7px;
+}
+label{
+    font-size:12px;
+    font-weight:700;
+    color:#596579;
+}
+input,
+select{
+    width:100%;
+    height:44px;
+    border:1px solid #d5dbe3;
+    border-radius:10px;
+    padding:0 13px;
+    font-size:15px;
+    color:var(--text);
+    background:#fff;
+    outline:none;
+    transition:.15s;
+}
+input:focus,
+select:focus{
+    border-color:var(--accent);
+    box-shadow:0 0 0 3px rgba(49,94,251,.09);
+}
+.currency-note{
+    margin-top:10px;
+    color:var(--muted);
+    font-size:12px;
+}
+/* =========================================================
+   SECTION
+========================================================= */
+.section{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:20px;
+    box-shadow:var(--shadow);
+    margin-bottom:22px;
+    overflow:hidden;
+}
+.section-head{
+    padding:20px 22px 14px;
+    border-bottom:1px solid var(--border);
+}
+.section-head h2{
+    margin:0;
+    font-size:21px;
+}
+.section-head p{
+    margin:5px 0 0;
+    color:var(--muted);
+    font-size:13px;
+}
+.section-body{
+    padding:20px 22px;
+}
+/* =========================================================
+   SIZE TABS
+========================================================= */
+.size-tabs{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    padding:18px 22px 0;
+}
+.size-tab{
+    border:1px solid var(--border);
+    background:#fff;
+    color:#536073;
+    padding:13px 20px;
+    border-radius:12px;
+    cursor:pointer;
+    font-size:15px;
+    font-weight:700;
+    transition:.18s;
+    text-align:left;
+}
+.size-tab small{
+    display:block;
+    margin-top:3px;
+    font-size:11px;
+    font-weight:500;
+    color:#7b8492;
+}
+.size-tab:hover{
+    border-color:#b8c5dd;
+}
+.size-tab.active{
+    background:var(--dark);
+    color:#fff;
+    border-color:var(--dark);
+}
+.size-tab.active small{
+    color:#c9d2df;
+}
+.tab-fob-price{
+    display:block;
+    margin-top:7px;
+    padding-top:6px;
+    border-top:1px solid #e8ebf0;
+    font-size:10px;
+    line-height:1.35;
+    font-weight:600;
+    color:#687386;
+    white-space:nowrap;
+}
+.tab-fob-price b{
+    font-size:11px;
+    color:#18212f;
+}
+.weight-overweight{
+    color:#dc2626 !important;
+}
+.packing-warning{
+    display:none;
+    margin-top:7px;
+    color:#dc2626;
+    font-size:12px;
+    font-weight:700;
+    line-height:1.35;
+}
+.packing-warning.show{
+    display:block;
+}
+.size-tab.active .tab-fob-price{
+    border-top-color:rgba(255,255,255,.18);
+    color:#c9d2df;
+}
+.size-tab.active .tab-fob-price b{
+    color:#fff;
+}
+/* =========================================================
+   INPUT GRID
+========================================================= */
+.input-grid{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:15px;
+}
+.field{
+    display:flex;
+    flex-direction:column;
+    gap:7px;
+}
+.field-note{
+    font-size:11px;
+    color:#87909d;
+    margin-top:-2px;
+}
+/* =========================================================
+   CALC SUMMARY
+========================================================= */
+.calc-summary{
+    margin-top:20px;
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:12px;
+}
+.info-box{
+    background:#f7f9fc;
+    border:1px solid var(--border);
+    border-radius:13px;
+    padding:15px;
+}
+.info-box span{
+    display:block;
+    color:var(--muted);
+    font-size:12px;
+    margin-bottom:6px;
+}
+.info-box strong{
+    font-size:19px;
+}
+/* =========================================================
+   COSTING
+========================================================= */
+.cost-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:22px;
+}
+.cost-column{
+    border:1px solid var(--border);
+    border-radius:15px;
+    padding:18px;
+}
+.cost-column h3{
+    margin:0 0 15px;
+    font-size:16px;
+}
+.cost-row{
+    display:grid;
+    grid-template-columns:1fr 150px;
+    gap:12px;
+    align-items:center;
+    margin-bottom:11px;
+}
+.cost-row span{
+    font-size:13px;
+    color:#526075;
+}
+/* =========================================================
+   PROFIT
+========================================================= */
+.profit-box{
+    margin-top:18px;
+    background:#f8fafc;
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:16px;
+}
+.sub-title{
+    font-size:15px;
+    font-weight:800;
+    margin:0 0 13px;
+}
+.profit-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr 1fr;
+    gap:14px;
+}
+/* =========================================================
+   RESULT
+========================================================= */
+.result-section{
+    background:#ffffff;
+    color:var(--text);
+    border:1px solid var(--border);
+    border-radius:20px;
+    overflow:hidden;
+    margin-bottom:22px;
+    box-shadow:var(--shadow);
+}
+.result-head{
+    padding:20px 24px 10px;
+}
+.result-head h2{
+    margin:0;
+    font-size:23px;
+}
+.result-head p{
+    margin:5px 0 0;
+    color:var(--muted);
+    font-size:13px;
+}
+.result-body{
+    padding:20px 24px 24px;
+}
+.result-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:13px;
+}
+.result-card{
+    background:#f7f9fc;
+    border:1px solid var(--border);
+    border-radius:15px;
+    padding:20px;
+    min-height:115px;
+}
+.result-card span{
+    display:block;
+    color:var(--muted);
+    font-size:14px;
+    margin-bottom:10px;
+}
+.result-card strong{
+    display:block;
+    font-size:28px;
+    letter-spacing:-.5px;
+    color:var(--text);
+}
+.result-card small{
+    color:var(--muted);
+    display:block;
+    margin-top:6px;
+}
+/* IMPORTANT SQM CARD */
+.result-card.primary{
+    background:#edf9f4;
+    border:1px solid #c9eadc;
+}
+.result-card.primary span{
+    color:#4f6b60;
+}
+.result-card.primary strong{
+    font-size:35px;
+    color:var(--green);
+}
+.result-card.primary small{
+    color:#668277;
+}
+/* =========================================================
+   CFR / CIF
+========================================================= */
+.trade-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:22px;
+}
+.trade-card{
+    border:1px solid var(--border);
+    border-radius:15px;
+    padding:18px;
+    background:#fff;
+}
+.trade-card h3{
+    margin:0 0 15px;
+    font-size:18px;
+}
+.trade-inputs{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:13px;
+    margin-bottom:17px;
+}
+.trade-results{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+}
+.trade-result{
+    background:#f7f9fc;
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:14px;
+}
+.trade-result span{
+    display:block;
+    font-size:11px;
+    color:var(--muted);
+    margin-bottom:5px;
+}
+.trade-result strong{
+    font-size:20px;
+}
+.trade-result.primary{
+    background:#edf9f4;
+    border-color:#c9eadc;
+}
+.trade-result.primary strong{
+    color:var(--green);
+    font-size:25px;
+}
+/* =========================================================
+   IMPORT / ANTI-DUMPING DUTY
+========================================================= */
+.duty-card{
+    border:1px solid var(--border);
+    border-radius:15px;
+    padding:18px;
+    background:#fff;
+}
+.duty-input{
+    max-width:260px;
+    margin-bottom:18px;
+}
+.duty-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:14px;
+}
+.duty-column{
+    border:1px solid var(--border);
+    border-radius:13px;
+    padding:14px;
+    background:#f7f9fc;
+}
+.duty-column h3{
+    margin:0 0 12px;
+    font-size:16px;
+}
+.duty-row{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+    padding:9px 0;
+    border-bottom:1px solid var(--border);
+}
+.duty-row:last-child{border-bottom:0;}
+.duty-row span{font-size:12px;color:var(--muted);}
+.duty-row strong{font-size:14px;text-align:right;}
+@media(max-width:700px){
+    .duty-grid{grid-template-columns:1fr;}
+}
+
+/* =========================================================
+   REVERSE CALCULATOR
+========================================================= */
+.reverse-grid{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:14px;
+}
+.reverse-result{
+    margin-top:18px;
+    padding:18px;
+    background:#f7f9fc;
+    border:1px solid var(--border);
+    border-radius:14px;
+}
+.reverse-result-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:18px;
+}
+.result-mini span{
+    display:block;
+    font-size:12px;
+    color:var(--muted);
+    margin-bottom:5px;
+}
+.result-mini strong{
+    font-size:21px;
+}
+/* =========================================================
+   BREAKDOWN
+========================================================= */
+.breakdown{
+    border:1px solid var(--border);
+    border-radius:14px;
+    overflow:hidden;
+}
+.breakdown-row{
+    display:grid;
+    grid-template-columns:1fr 180px;
+    padding:12px 15px;
+    border-bottom:1px solid var(--border);
+    font-size:13px;
+}
+.breakdown-row:last-child{
+    border-bottom:0;
+}
+.breakdown-row:nth-child(even){
+    background:#fafbfc;
+}
+.breakdown-row strong{
+    text-align:right;
+}
+/* =========================================================
+   FOOTER
+========================================================= */
+.footer-note{
+    text-align:center;
+    color:#8a94a3;
+    font-size:12px;
+    margin-top:25px;
+}
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+@media(max-width:1100px){
+    .currency-grid,
+    .input-grid,
+    .calc-summary,
+    .reverse-grid{
+        grid-template-columns:repeat(2,1fr);
+    }
+    .cost-grid,
+    .trade-grid{
+        grid-template-columns:1fr;
+    }
+}
+@media(max-width:700px){
+    .container{
+        width:95%;
+        margin-top:15px;
+    }
+    .header h1{
+        font-size:26px;
+    }
+    .currency-grid,
+    .input-grid,
+    .calc-summary,
+    .reverse-grid,
+    .result-grid,
+    .profit-grid,
+    .reverse-result-grid{
+        grid-template-columns:1fr;
+    }
+    .trade-inputs,
+    .trade-results{
+        grid-template-columns:1fr;
+    }
+    .cost-row{
+        grid-template-columns:1fr;
+    }
+    .size-tab{
+        flex:1;
+    }
+    .result-card.primary strong{
+        font-size:30px;
+    }
+}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="header">
+    <h1>Tile Export Price Calculator</h1>
+    <p>
+        FOB • CFR • CIF • Reverse Calculator
+    </p>
+</div>
+<div class="currency-card">
+    <div class="currency-grid">
+        <div class="currency-select-wrap">
+            <label>
+                Selected Selling Currency
+            </label>
+            <select id="currency">
+                <option value="USD" selected>
+                    USD
+                </option>
+            </select>
+        </div>
+        <div class="currency-select-wrap">
+            <label>
+                USD → INR Rate
+            </label>
+            <input
+                id="usdRate"
+                type="number"
+                step="any"
+                value="90"
+            >
+        </div>
+    </div>
+    <div class="currency-note">
+        Currency rates are manual. No live rate and no rounding.
+    </div>
+</div>
+<section class="section">
+    <div class="section-head">
+        <h2>
+            Tile & Container
+        </h2>
+        <p>
+            Size select karo. Darek size nu costing data separately save thase.
+        </p>
+    </div>
+    <div class="size-tabs">
+        <button
+            class="size-tab"
+            data-size="600x600"
+            type="button"
+        >
+            600 × 600
+            <small>
+                4 pcs / box
+            </small>
+            <span class="tab-fob-price">
+                FOB / m² — USD <b class="tab-usd-price">0.00</b>
+            </span>
+        </button>
+        <button
+            class="size-tab active"
+            data-size="600x1200"
+            type="button"
+        >
+            600 × 1200
+            <small>
+                2 pcs / box
+            </small>
+            <span class="tab-fob-price">
+                FOB / m² — USD <b class="tab-usd-price">0.00</b>
+            </span>
+        </button>
+        <button
+            class="size-tab"
+            data-size="1200x1200"
+            type="button"
+        >
+            1200 × 1200
+            <small>
+                2 pcs / box
+            </small>
+            <span class="tab-fob-price">
+                FOB / m² — USD <b class="tab-usd-price">0.00</b>
+            </span>
+        </button>
+        <button
+            class="size-tab"
+            data-size="800x800"
+            type="button"
+        >
+            800 × 800
+            <small>
+                3 pcs / box
+            </small>
+            <span class="tab-fob-price">
+                FOB / m² — USD <b class="tab-usd-price">0.00</b>
+            </span>
+        </button>
+    </div>
+    <div class="section-body">
+        <div class="input-grid">
+            <div class="field">
+                <label>
+                    Ex-Factory — ₹ / SQ.FT
+                </label>
+                <input
+                    id="exFactory"
+                    type="number"
+                    step="any"
+                >
+            </div>
+            <div class="field">
+                <label>
+                    Thickness — MM
+                </label>
+                <input
+                    id="thickness"
+                    type="number"
+                    step="any"
+                >
+            </div>
+            <div class="field">
+                <label>
+                    PCS / Box
+                </label>
+                <input
+                    id="pcsBox"
+                    type="number"
+                    step="any"
+                >
+            </div>
+            <div class="field">
+                <label>
+                    Weight / Box — KG
+                </label>
+                <input
+                    id="weightBox"
+                    type="number"
+                    step="any"
+                >
+                <div id="packingWarning" class="packing-warning">
+                    Packing changed — please verify box weight before final quotation.
+                </div>
+            </div>
+            <div class="field">
+                <label>
+                    SQM / Box
+                </label>
+                <input
+                    id="sqmBox"
+                    type="number"
+                    step="any"
+                    readonly
+                >
+            </div>
+            <div class="field">
+                <label>
+                    Boxes / Container — MANUAL
+                </label>
+                <input
+                    id="boxesContainer"
+                    type="number"
+                    step="1"
+                >
+                <div class="field-note">
+                    User manually decides loading quantity.
+                </div>
+            </div>
+            <div class="field">
+                <label>
+                    Maximum Cargo Weight — KG
+                </label>
+                <input
+                    id="maxCargoWeight"
+                    type="number"
+                    step="any"
+                    value="27900"
+                >
+            </div>
+            <div class="field">
+                <label>
+                    Pallet / Packing Deduction — KG
+                </label>
+                <input
+                    id="packingDeduction"
+                    type="number"
+                    step="any"
+                    value="500"
+                >
+            </div>
+        </div>
+        <div class="calc-summary">
+            <div class="info-box">
+                <span>
+                    Total SQM / Container
+                </span>
+                <strong id="totalSqm">
+                    0.00
+                </strong>
+            </div>
+            <div class="info-box">
+                <span>
+                    Total SQ.FT / Container
+                </span>
+                <strong id="totalSqft">
+                    0.00
+                </strong>
+            </div>
+            <div class="info-box">
+                <span>
+                    Tile Cargo Weight
+                </span>
+                <strong id="cargoWeight">
+                    0.00 KG
+                </strong>
+            </div>
+            <div class="info-box">
+                <span>
+                    Available Weight After Packing
+                </span>
+                <strong id="usableWeight">
+                    0.00 KG
+                </strong>
+            </div>
+        </div>
+        <div class="calc-summary">
+            <div class="info-box">
+                <span>
+                    Maximum Boxes By Weight
+                </span>
+                <strong id="maxBoxes">
+                    0
+                </strong>
+            </div>
+            <div class="info-box">
+                <span>
+                    Actual Boxes Loaded
+                </span>
+                <strong id="actualBoxes">
+                    0
+                </strong>
+            </div>
+            <div class="info-box">
+                <span>
+                    Total PCS / Container
+                </span>
+                <strong id="totalPcs">
+                    0
+                </strong>
+            </div>
+            <div class="info-box">
+                <span>
+                    Weight Status
+                </span>
+                <strong id="weightStatus">
+                    —
+                </strong>
+            </div>
+        </div>
+    </div>
+</section>
+<section class="section">
+    <div class="section-head">
+        <h2>
+            FOB Costing — Per Container
+        </h2>
+        <p>
+            All export expenses are calculated on per-container basis.
+        </p>
+    </div>
+    <div class="section-body">
+        <div class="cost-grid">
+            <div class="cost-column">
+                <h3>
+                    FOB Export Costing — INR
+                </h3>
+                <div class="cost-row">
+                    <span>
+                        Pallet + Wrapping / Strapping / Other Packing
+                    </span>
+                    <input
+                        id="palletPacking"
+                        type="number"
+                        step="any"
+                        value="16000"
+                    >
+                </div>
+                <div class="cost-row">
+                    <span>
+                        Inland Transport / 20 GP
+                    </span>
+                    <input
+                        id="transport"
+                        type="number"
+                        step="any"
+                        value="23000"
+                    >
+                </div>
+                <div class="cost-row">
+                    <span>
+                        LOLO / Yard Charges
+                    </span>
+                    <input
+                        id="lolo"
+                        type="number"
+                        step="any"
+                        value="3000"
+                    >
+                </div>
+                <div class="cost-row">
+                    <span>
+                        Agency Charges / 20 GP
+                    </span>
+                    <input
+                        id="agency"
+                        type="number"
+                        step="any"
+                        value="1500"
+                    >
+                </div>
+                <div class="cost-row">
+                    <span>
+                        BL Charges
+                    </span>
+                    <input
+                        id="blCharges"
+                        type="number"
+                        step="any"
+                        value="5500"
+                    >
+                </div>
+                <div class="cost-row">
+                    <span>
+                        Seal Charges
+                    </span>
+                    <input
+                        id="sealCharges"
+                        type="number"
+                        step="any"
+                        value="1050"
+                    >
+                </div>
+                <div class="cost-row">
+                    <span>
+                        Facilitation Charges
+                    </span>
+                    <input
+                        id="facilitation"
+                        type="number"
+                        step="any"
+                        value="1250"
+                    >
+                </div>
+                <div class="cost-row">
+                    <span>
+                        THC Charges
+                    </span>
+                    <input
+                        id="thc"
+                        type="number"
+                        step="any"
+                        value="15375"
+                    >
+                </div>
+                <div class="cost-row">
+                    <span>
+                        BL Surrender Fee
+                    </span>
+                    <input
+                        id="blSurrender"
+                        type="number"
+                        step="any"
+                        value="5250"
+                    >
+                </div>
+            </div>
+            <div class="cost-column">
+                <h3>
+                    Other Expenses
+                </h3>
+                <div class="cost-row">
+                    <span>
+                        Other Expenses — USD / Container
+                    </span>
+                    <input
+                        id="otherUSD"
+                        type="number"
+                        step="any"
+                        value="0"
+                    >
+                </div>
+                <div class="cost-row">
+                    <span>
+                        Other Expenses — INR / Container
+                    </span>
+                    <input
+                        id="otherINR"
+                        type="number"
+                        step="any"
+                        value="0"
+                    >
+                </div>
+                <div class="cost-row">
+                    <span>
+                        USD → INR Conversion
+                    </span>
+                    <input
+                        id="otherUSDDisplay"
+                        type="text"
+                        readonly
+                    >
+                </div>
+                <div class="cost-row">
+                    <span>
+                        Total Other Expenses — INR
+                    </span>
+                    <input
+                        id="otherTotalDisplay"
+                        type="text"
+                        readonly
+                    >
+                </div>
+                <div class="breakdown">
+                    <div class="breakdown-row">
+                        <span>
+                            Other USD Converted
+                        </span>
+                        <strong id="otherUSDConverted">
+                            ₹0.00
+                        </strong>
+                    </div>
+                    <div class="breakdown-row">
+                        <span>
+                            Other INR
+                        </span>
+                        <strong id="otherINRDisplay">
+                            ₹0.00
+                        </strong>
+                    </div>
+                    <div class="breakdown-row">
+                        <span>
+                            Total Other Expenses
+                        </span>
+                        <strong id="otherTotal">
+                            ₹0.00
+                        </strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="profit-box">
+            <div class="sub-title">
+                Profit
+            </div>
+            <div class="profit-grid">
+                <div class="field">
+                    <label>
+                        Profit — ₹ / SQ.FT
+                    </label>
+                    <input
+                        id="profitSqft"
+                        type="number"
+                        step="any"
+                        value="1.50"
+                    >
+                </div>
+                <div class="field">
+                    <label>
+                        Profit — % (Optional)
+                    </label>
+                    <input
+                        id="profitPercent"
+                        type="number"
+                        step="any"
+                        value="0"
+                    >
+                    <div class="field-note">
+                        If % is entered, it will be used instead of ₹/SQ.FT.
+                    </div>
+                </div>
+                <div class="field">
+                    <label>
+                        Active Profit Method
+                    </label>
+                    <input
+                        id="profitMethod"
+                        type="text"
+                        readonly
+                    >
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<section class="result-section">
+    <div class="result-head">
+        <h2>
+            FOB Selling — Per Container
+        </h2>
+        <p>
+            Final FOB selling price after cost + profit.
+        </p>
+    </div>
+    <div class="result-body">
+        <div class="result-grid">
+            <div class="result-card">
+                <span>
+                    FOB Selling / Container — INR
+                </span>
+                <strong id="fobContainerINR">
+                    ₹0.00
+                </strong>
+            </div>
+            <div class="result-card">
+                <span>
+                    FOB Selling / Container — Selected Currency
+                </span>
+                <strong id="fobContainerCurrency">
+                    USD 0.00
+                </strong>
+            </div>
+            <div class="result-card">
+                <span>
+                    FOB Selling / Sq.Ft — INR
+                </span>
+                <strong id="fobSqftINR">
+                    ₹0.00
+                </strong>
+            </div>
+            <div class="result-card">
+                <span>
+                    FOB Selling / Sq.Ft — Selected Currency
+                </span>
+                <strong id="fobSqftCurrency">
+                    USD 0.00
+                </strong>
+            </div>
+            <div class="result-card">
+                <span>
+                    FOB Selling / Box — INR
+                </span>
+                <strong id="fobBoxINR">
+                    ₹0.00
+                </strong>
+            </div>
+            <div class="result-card">
+                <span>
+                    FOB Selling / Box — Selected Currency
+                </span>
+                <strong id="fobBoxCurrency">
+                    USD 0.00
+                </strong>
+            </div>
+            <div class="result-card">
+                <span>
+                    FOB Selling / m² — INR
+                </span>
+                <strong id="fobSqmINR">
+                    ₹0.00
+                </strong>
+            </div>
+            <div class="result-card primary">
+                <span>
+                    FOB Selling / m² — Selected Currency
+                </span>
+                <strong id="fobSqmCurrency">
+                    USD 0.00
+                </strong>
+                <small id="fobSqmCurrencySub">
+                    Final FOB price / m²
+                </small>
+            </div>
+        </div>
+    </div>
+</section>
+<section class="section">
+    <div class="section-head">
+        <h2>
+            CFR / CIF Calculation
+        </h2>
+        <p>
+            Freight અને insurance add કરીને final CFR / CIF selling price.
+        </p>
+    </div>
+    <div class="section-body">
+        <div class="trade-grid">
+            <div class="trade-card">
+                <h3>
+                    CFR
+                </h3>
+                <div class="trade-inputs">
+                    <div class="field">
+                        <label>
+                            Ocean Freight / Container — Selected Currency
+                        </label>
+                        <input
+                            id="freight"
+                            type="number"
+                            step="any"
+                            value="0"
+                        >
+                    </div>
+                    <div class="field">
+                        <label>
+                            Selected Currency
+                        </label>
+                        <input
+                            id="freightCurrencyDisplay"
+                            type="text"
+                            readonly
+                        >
+                    </div>
+                </div>
+                <div class="trade-results">
+                    <div class="trade-result">
+                        <span>
+                            CFR / Container — INR
+                        </span>
+                        <strong id="cfrContainerINR">
+                            ₹0.00
+                        </strong>
+                    </div>
+                    <div class="trade-result">
+                        <span>
+                            CFR / Container — Selected Currency
+                        </span>
+                        <strong id="cfrContainerCurrency">
+                            USD 0.00
+                        </strong>
+                    </div>
+                    <div class="trade-result">
+                        <span>
+                            CFR / m² — INR
+                        </span>
+                        <strong id="cfrSqmINR">
+                            ₹0.00
+                        </strong>
+                    </div>
+                    <div class="trade-result primary">
+                        <span>
+                            CFR / m² — Selected Currency
+                        </span>
+                        <strong id="cfrSqmCurrency">
+                            USD 0.00
+                        </strong>
+                    </div>
+                </div>
+            </div>
+            <div class="trade-card">
+                <h3>
+                    CIF
+                </h3>
+                <div class="trade-inputs">
+                    <div class="field">
+                        <label>
+                            Ocean Freight / Container — Selected Currency
+                        </label>
+                        <input
+                            id="cifFreight"
+                            type="number"
+                            step="any"
+                            value="0"
+                        >
+                    </div>
+                    <div class="field">
+                        <label>
+                            Insurance / Container — Selected Currency
+                        </label>
+                        <input
+                            id="insurance"
+                            type="number"
+                            step="any"
+                            value="0"
+                        >
+                    </div>
+                </div>
+                <div class="trade-results">
+                    <div class="trade-result">
+                        <span>
+                            CIF / Container — INR
+                        </span>
+                        <strong id="cifContainerINR">
+                            ₹0.00
+                        </strong>
+                    </div>
+                    <div class="trade-result">
+                        <span>
+                            CIF / Container — Selected Currency
+                        </span>
+                        <strong id="cifContainerCurrency">
+                            USD 0.00
+                        </strong>
+                    </div>
+                    <div class="trade-result">
+                        <span>
+                            CIF / m² — INR
+                        </span>
+                        <strong id="cifSqmINR">
+                            ₹0.00
+                        </strong>
+                    </div>
+                    <div class="trade-result primary">
+                        <span>
+                            CIF / m² — Selected Currency
+                        </span>
+                        <strong id="cifSqmCurrency">
+                            USD 0.00
+                        </strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<section class="section">
+    <div class="section-head">
+        <h2>
+            Cost Summary — Per Container
+        </h2>
+    </div>
+    <div class="section-body">
+        <div class="breakdown">
+            <div class="breakdown-row">
+                <span>
+                    Tile Ex-Factory Cost
+                </span>
+                <strong id="summaryExFactory">
+                    ₹0.00
+                </strong>
+            </div>
+            <div class="breakdown-row">
+                <span>
+                    FOB Export Expenses
+                </span>
+                <strong id="summaryExport">
+                    ₹0.00
+                </strong>
+            </div>
+            <div class="breakdown-row">
+                <span>
+                    Other Expenses
+                </span>
+                <strong id="summaryOther">
+                    ₹0.00
+                </strong>
+            </div>
+            <div class="breakdown-row">
+                <span>
+                    Total FOB Cost Before Profit
+                </span>
+                <strong id="summaryFOBCost">
+                    ₹0.00
+                </strong>
+            </div>
+            <div class="breakdown-row">
+                <span>
+                    Profit
+                </span>
+                <strong id="summaryProfit">
+                    ₹0.00
+                </strong>
+            </div>
+            <div class="breakdown-row">
+                <span>
+                    Total FOB Selling Price
+                </span>
+                <strong id="summaryFOBSelling">
+                    ₹0.00
+                </strong>
+            </div>
+        </div>
+    </div>
+</section>
+<section class="section">
+    <div class="section-head">
+        <h2>
+            Import / Anti-Dumping Duty
+        </h2>
+        <p>
+            Duty percentage applies separately to FOB, CFR and CIF prices.
+        </p>
+    </div>
+    <div class="section-body">
+        <div class="duty-card">
+            <div class="field duty-input">
+                <label>
+                    Import / Anti-Dumping Duty — %
+                </label>
+                <input id="dutyPercent" type="number" step="any" value="0" min="0">
+            </div>
+            <div class="duty-grid">
+                <div class="duty-column">
+                    <h3>FOB Duty</h3>
+                    <div class="duty-row"><span>Duty / Container — INR</span><strong id="fobDutyContainerINR">₹0.00</strong></div>
+                    <div class="duty-row"><span>Duty / Container — USD</span><strong id="fobDutyContainerUSD">USD 0.00</strong></div>
+                    <div class="duty-row"><span>Duty / SQ.FT — INR</span><strong id="fobDutySqftINR">₹0.00</strong></div>
+                    <div class="duty-row"><span>Duty / SQ.FT — USD</span><strong id="fobDutySqftUSD">USD 0.00</strong></div>
+                    <div class="duty-row"><span>Duty / m² — INR</span><strong id="fobDutySqmINR">₹0.00</strong></div>
+                    <div class="duty-row"><span>Duty / m² — USD</span><strong id="fobDutySqmUSD">USD 0.00</strong></div>
+                </div>
+                <div class="duty-column">
+                    <h3>CFR Duty</h3>
+                    <div class="duty-row"><span>Duty / Container — INR</span><strong id="cfrDutyContainerINR">₹0.00</strong></div>
+                    <div class="duty-row"><span>Duty / Container — USD</span><strong id="cfrDutyContainerUSD">USD 0.00</strong></div>
+                    <div class="duty-row"><span>Duty / SQ.FT — INR</span><strong id="cfrDutySqftINR">₹0.00</strong></div>
+                    <div class="duty-row"><span>Duty / SQ.FT — USD</span><strong id="cfrDutySqftUSD">USD 0.00</strong></div>
+                    <div class="duty-row"><span>Duty / m² — INR</span><strong id="cfrDutySqmINR">₹0.00</strong></div>
+                    <div class="duty-row"><span>Duty / m² — USD</span><strong id="cfrDutySqmUSD">USD 0.00</strong></div>
+                </div>
+                <div class="duty-column">
+                    <h3>CIF Duty</h3>
+                    <div class="duty-row"><span>Duty / Container — INR</span><strong id="cifDutyContainerINR">₹0.00</strong></div>
+                    <div class="duty-row"><span>Duty / Container — USD</span><strong id="cifDutyContainerUSD">USD 0.00</strong></div>
+                    <div class="duty-row"><span>Duty / SQ.FT — INR</span><strong id="cifDutySqftINR">₹0.00</strong></div>
+                    <div class="duty-row"><span>Duty / SQ.FT — USD</span><strong id="cifDutySqftUSD">USD 0.00</strong></div>
+                    <div class="duty-row"><span>Duty / m² — INR</span><strong id="cifDutySqmINR">₹0.00</strong></div>
+                    <div class="duty-row"><span>Duty / m² — USD</span><strong id="cifDutySqmUSD">USD 0.00</strong></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<section class="section">
+    <div class="section-head">
+        <h2>
+            Reverse Calculator
+        </h2>
+        <p>
+            Target FOB selling price thi maximum possible Ex-Factory rate calculate karo.
+        </p>
+    </div>
+    <div class="section-body">
+        <div class="reverse-grid">
+            <div class="field">
+                <label>
+                    Target FOB Selling / m² — Selected Currency
+                </label>
+                <input
+                    id="reverseTarget"
+                    type="number"
+                    step="any"
+                    value="0"
+                >
+            </div>
+            <div class="field">
+                <label>
+                    Profit / SQ.FT — ₹
+                </label>
+                <input
+                    id="reverseProfit"
+                    type="number"
+                    step="any"
+                    value="1.50"
+                >
+            </div>
+            <div class="field">
+                <label>
+                    Target Boxes / Container
+                </label>
+                <input
+                    id="reverseBoxes"
+                    type="number"
+                    step="1"
+                    value="1040"
+                >
+            </div>
+            <div class="field">
+                <label>
+                    Current Size
+                </label>
+                <input
+                    id="reverseSizeDisplay"
+                    type="text"
+                    readonly
+                >
+            </div>
+        </div>
+        <div class="reverse-result">
+            <div class="reverse-result-grid">
+                <div class="result-mini">
+                    <span>
+                        Target FOB / Container — INR
+                    </span>
+                    <strong id="reverseContainerINR">
+                        ₹0.00
+                    </strong>
+                </div>
+                <div class="result-mini">
+                    <span>
+                        Maximum Ex-Factory — ₹ / SQ.FT
+                    </span>
+                    <strong id="reverseExFactory">
+                        ₹0.00
+                    </strong>
+                </div>
+                <div class="result-mini">
+                    <span>
+                        Target / m² — Selected Currency
+                    </span>
+                    <strong id="reverseTargetDisplay">
+                        USD 0.00
+                    </strong>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<div class="footer-note">
+    Tile Export Calculator • Manual Currency Rates • Manual Container Loading
+</div>
+</div>
+<script>
+/* =========================================================
+   IMPORT / ANTI-DUMPING DUTY
+========================================================= */
+function calculateDuty(basePrices){
+    const dutyRate = num("dutyPercent") / 100;
+    const sqmBox = getSqmPerBox(selectedSize, num("pcsBox"));
+    const boxes = num("boxesContainer");
+    const totalSqm = sqmBox * boxes;
+    const sqftPerSqm = 10.7639104167;
+    const totalSqft = totalSqm * sqftPerSqm;
+    const rate = currentRate();
+
+    function setDuty(prefix, containerINR){
+        const containerDutyINR = containerINR * dutyRate;
+        const sqmDutyINR = totalSqm > 0 ? containerDutyINR / totalSqm : 0;
+        const sqftDutyINR = totalSqft > 0 ? containerDutyINR / totalSqft : 0;
+        const containerDutyUSD = rate > 0 ? containerDutyINR / rate : 0;
+        const sqmDutyUSD = rate > 0 ? sqmDutyINR / rate : 0;
+        const sqftDutyUSD = rate > 0 ? sqftDutyINR / rate : 0;
+        $(prefix+"DutyContainerINR").textContent = moneyINR(containerDutyINR);
+        $(prefix+"DutyContainerUSD").textContent = currencyMoney(containerDutyUSD, "USD");
+        $(prefix+"DutySqftINR").textContent = moneyINR(sqftDutyINR);
+        $(prefix+"DutySqftUSD").textContent = currencyMoney(sqftDutyUSD, "USD");
+        $(prefix+"DutySqmINR").textContent = moneyINR(sqmDutyINR);
+        $(prefix+"DutySqmUSD").textContent = currencyMoney(sqmDutyUSD, "USD");
+    }
+    setDuty("fob", basePrices.fobINR);
+    setDuty("cfr", basePrices.cfrINR);
+    setDuty("cif", basePrices.cifINR);
+}
+
+
+/* =========================================================
+   TILE DATA
+========================================================= */
+const tileData = {
+    "600x600": {
+        name: "600 × 600",
+        exFactory: 27,
+        thickness: 8,
+        pcsBox: 4,
+        weightBox: 27,
+        sqmBox: 1.44,
+        boxesContainer: 1040,
+        defaultPcsBox: 4
+    },
+    "600x1200": {
+        name: "600 × 1200",
+        exFactory: 27,
+        thickness: 8.5,
+        pcsBox: 2,
+        weightBox: 27,
+        sqmBox: 1.44,
+        boxesContainer: 1040,
+        defaultPcsBox: 2
+    },
+    "1200x1200": {
+        name: "1200 × 1200",
+        exFactory: 38,
+        thickness: 9,
+        pcsBox: 2,
+        weightBox: 61,
+        sqmBox: 2.88,
+        boxesContainer: 450,
+        defaultPcsBox: 2
+    },
+    "800x800": {
+        name: "800 × 800",
+        exFactory: 33,
+        thickness: 9,
+        pcsBox: 3,
+        weightBox: 38.20,
+        sqmBox: 1.92,
+        boxesContainer: 720,
+        defaultPcsBox: 3
+    }
+};
+/*
+   IMPORTANT:
+   Start with NULL so the initial 600x1200 data
+   is NOT overwritten with zero values.
+*/
+let selectedSize = null;
+/* =========================================================
+   HELPERS
+========================================================= */
+function $(id){
+    return document.getElementById(id);
+}
+function num(id){
+    const value = parseFloat($(id).value);
+    return Number.isFinite(value)
+        ? value
+        : 0;
+}
+function moneyINR(value){
+    return "₹" + Number(value || 0).toLocaleString(
+        "en-IN",
+        {
+            minimumFractionDigits:2,
+            maximumFractionDigits:2
+        }
+    );
+}
+function number(value){
+    return Number(value || 0).toLocaleString(
+        "en-IN",
+        {
+            minimumFractionDigits:2,
+            maximumFractionDigits:2
+        }
+    );
+}
+function currencyMoney(value,currency){
+    return currency + " " +
+        Number(value || 0).toLocaleString(
+            "en-IN",
+            {
+                minimumFractionDigits:2,
+                maximumFractionDigits:2
+            }
+        );
+}
+function currentRate(){
+    return num("usdRate");
+}
+/* =========================================================
+   AREA PER BOX — CALCULATED FROM SIZE × PCS/BOX
+========================================================= */
+function getSqmPerPiece(size){
+    const dimensions = {
+        "600x600": [600,600],
+        "600x1200": [600,1200],
+        "1200x1200": [1200,1200],
+        "800x800": [800,800]
+    };
+    const d = dimensions[size] || [0,0];
+    return (d[0] * d[1]) / 1000000;
+}
+function getSqmPerBox(size, pcs){
+    return getSqmPerPiece(size) * Math.max(0, Number(pcs || 0));
+}
+function updatePackingWarning(){
+    const data = tileData[selectedSize];
+    const warning = $("packingWarning");
+    if(!data || !warning) return;
+    const changed = num("pcsBox") !== Number(data.defaultPcsBox);
+    warning.classList.toggle("show", changed);
+}
+/* =========================================================
+   SAVE CURRENT SIZE
+========================================================= */
+function saveCurrentSize(){
+    if(selectedSize === null){
+        return;
+    }
+    tileData[selectedSize].exFactory =
+        num("exFactory");
+    tileData[selectedSize].thickness =
+        num("thickness");
+    tileData[selectedSize].pcsBox =
+        num("pcsBox");
+    tileData[selectedSize].weightBox =
+        num("weightBox");
+    tileData[selectedSize].sqmBox =
+        getSqmPerBox(selectedSize, tileData[selectedSize].pcsBox);
+    tileData[selectedSize].boxesContainer =
+        num("boxesContainer");
+}
+/* =========================================================
+   LOAD SIZE
+========================================================= */
+function loadSize(size){
+    /*
+       Save only if another size was already loaded.
+       This fixes the initial 600x1200 zero-data bug.
+    */
+    if(selectedSize !== null){
+        saveCurrentSize();
+    }
+    selectedSize = size;
+    const data = tileData[size];
+    $("exFactory").value =
+        data.exFactory;
+    $("thickness").value =
+        data.thickness;
+    $("pcsBox").value =
+        data.pcsBox;
+    $("weightBox").value =
+        data.weightBox;
+    $("sqmBox").value =
+        getSqmPerBox(size, data.pcsBox);
+    $("boxesContainer").value =
+        data.boxesContainer;
+    document
+        .querySelectorAll(".size-tab")
+        .forEach(tab => {
+            tab.classList.toggle(
+                "active",
+                tab.dataset.size === size
+            );
+        });
+    $("reverseSizeDisplay").value =
+        data.name;
+    $("reverseBoxes").value =
+        data.boxesContainer;
+    document.querySelectorAll(".size-tab").forEach(tab => {
+        const d = tileData[tab.dataset.size];
+        const small = tab.querySelector("small");
+        if(small && d){
+            small.textContent = `${d.pcsBox} pcs / box`;
+        }
+    });
+    updatePackingWarning();
+    calculate();
+}
+/* =========================================================
+   EXPORT EXPENSES
+========================================================= */
+function exportExpenses(){
+    return (
+        num("palletPacking") +
+        num("transport") +
+        num("lolo") +
+        num("agency") +
+        num("blCharges") +
+        num("sealCharges") +
+        num("facilitation") +
+        num("thc") +
+        num("blSurrender")
+    );
+}
+/* =========================================================
+   MAIN CALCULATOR
+========================================================= */
+function calculate(){
+    saveCurrentSize();
+    const pcsBox =
+        num("pcsBox");
+    const sqmBox =
+        getSqmPerBox(selectedSize, pcsBox);
+    $("sqmBox").value = sqmBox;
+    updatePackingWarning();
+    const boxes =
+        num("boxesContainer");
+    const weightBox =
+        num("weightBox");
+    const totalSqm =
+        sqmBox * boxes;
+    const SQFT_PER_SQM =
+        10.7639104167;
+    const totalSqft =
+        totalSqm * SQFT_PER_SQM;
+    const cargoWeight =
+        weightBox * boxes;
+    const maxCargo =
+        num("maxCargoWeight");
+    const deduction =
+        num("packingDeduction");
+    const usableWeight =
+        Math.max(
+            0,
+            maxCargo - deduction
+        );
+    const maxBoxes =
+        weightBox > 0
+            ? Math.floor(
+                usableWeight / weightBox
+            )
+            : 0;
+    const totalPcs =
+        boxes * pcsBox;
+    $("totalSqm").textContent =
+        number(totalSqm);
+    $("totalSqft").textContent =
+        number(totalSqft);
+    $("cargoWeight").textContent =
+        number(cargoWeight) + " KG";
+    $("usableWeight").textContent =
+        number(usableWeight) + " KG";
+    $("maxBoxes").textContent =
+        maxBoxes.toLocaleString("en-IN");
+    $("actualBoxes").textContent =
+        boxes.toLocaleString("en-IN");
+    $("totalPcs").textContent =
+        totalPcs.toLocaleString("en-IN");
+    /* WEIGHT STATUS */
+    const weightStatusEl = $("weightStatus");
+    weightStatusEl.classList.remove("weight-overweight");
+    if(weightBox <= 0){
+        weightStatusEl.textContent =
+            "Enter Weight";
+    }
+    else if(cargoWeight <= usableWeight){
+        weightStatusEl.textContent =
+            "Within Limit";
+    }
+    else{
+        weightStatusEl.textContent =
+            "OVERWEIGHT";
+        weightStatusEl.classList.add("weight-overweight");
+    }
+    /* =====================================================
+       TILE EX-FACTORY COST
+    ===================================================== */
+    const exFactoryRate =
+        num("exFactory");
+    const tileExFactoryCost =
+        exFactoryRate * totalSqft;
+    /* =====================================================
+       OTHER EXPENSES
+    ===================================================== */
+    const usdRate =
+        num("usdRate");
+    const otherUSD =
+        num("otherUSD");
+    const otherUSDConverted =
+        otherUSD * usdRate;
+    const otherINR =
+        num("otherINR");
+    const otherTotal =
+        otherUSDConverted + otherINR;
+    $("otherUSDDisplay").value =
+        moneyINR(otherUSDConverted);
+    $("otherTotalDisplay").value =
+        moneyINR(otherTotal);
+    $("otherUSDConverted").textContent =
+        moneyINR(otherUSDConverted);
+    $("otherINRDisplay").textContent =
+        moneyINR(otherINR);
+    $("otherTotal").textContent =
+        moneyINR(otherTotal);
+    /* =====================================================
+       FOB EXPORT COST
+    ===================================================== */
+    const exportCost =
+        exportExpenses();
+    const totalFOBCost =
+        tileExFactoryCost +
+        exportCost +
+        otherTotal;
+    /* =====================================================
+       PROFIT
+    ===================================================== */
+    const profitPerSqft =
+        num("profitSqft");
+    const profitPercent =
+        num("profitPercent");
+    let profit = 0;
+    if(profitPercent > 0){
+        profit =
+            totalFOBCost *
+            profitPercent /
+            100;
+        $("profitMethod").value =
+            profitPercent +
+            "% of FOB Cost";
+    }
+    else{
+        profit =
+            profitPerSqft *
+            totalSqft;
+        $("profitMethod").value =
+            moneyINR(profitPerSqft) +
+            " / SQ.FT";
+    }
+    /* =====================================================
+       FOB SELLING
+    ===================================================== */
+    const fobSellingINR =
+        totalFOBCost + profit;
+    const currency =
+        $("currency").value;
+    const rate =
+        currentRate();
+    const fobContainerCurrency =
+        rate > 0
+            ? fobSellingINR / rate
+            : 0;
+    const fobSqftINR =
+        totalSqft > 0
+            ? fobSellingINR /
+              totalSqft /
+              SQFT_PER_SQM
+            : 0;
+    const fobSqmINR =
+        totalSqm > 0
+            ? fobSellingINR /
+              totalSqm
+            : 0;
+    const fobBoxINR =
+        boxes > 0
+            ? fobSellingINR /
+              boxes
+            : 0;
+    const fobSqftCurrency =
+        rate > 0
+            ? fobSqftINR / rate
+            : 0;
+    const fobSqmCurrency =
+        rate > 0
+            ? fobSqmINR / rate
+            : 0;
+    const fobBoxCurrency =
+        rate > 0
+            ? fobBoxINR / rate
+            : 0;
+    /* =====================================================
+       FOB RESULT
+    ===================================================== */
+    $("fobContainerINR").textContent =
+        moneyINR(fobSellingINR);
+    $("fobContainerCurrency").textContent =
+        currencyMoney(
+            fobContainerCurrency,
+            currency
+        );
+    $("fobSqftINR").textContent =
+        moneyINR(fobSqftINR);
+    $("fobSqftCurrency").textContent =
+        currencyMoney(
+            fobSqftCurrency,
+            currency
+        );
+    $("fobBoxINR").textContent =
+        moneyINR(fobBoxINR);
+    $("fobBoxCurrency").textContent =
+        currencyMoney(
+            fobBoxCurrency,
+            currency
+        );
+    $("fobSqmINR").textContent =
+        moneyINR(fobSqmINR);
+    $("fobSqmCurrency").textContent =
+        currencyMoney(
+            fobSqmCurrency,
+            currency
+        );
+    $("fobSqmCurrencySub").textContent =
+        "Final FOB price / m² • " +
+        currency;
+    /* =====================================================
+       SUMMARY
+    ===================================================== */
+    $("summaryExFactory").textContent =
+        moneyINR(tileExFactoryCost);
+    $("summaryExport").textContent =
+        moneyINR(exportCost);
+    $("summaryOther").textContent =
+        moneyINR(otherTotal);
+    $("summaryFOBCost").textContent =
+        moneyINR(totalFOBCost);
+    $("summaryProfit").textContent =
+        moneyINR(profit);
+    $("summaryFOBSelling").textContent =
+        moneyINR(fobSellingINR);
+    /* =====================================================
+       CFR / CIF
+    ===================================================== */
+    const tradePrices = calculateTradePrices(
+        fobSellingINR,
+        totalSqm,
+        currency,
+        rate
+    );
+    calculateDuty({
+        fobINR: fobSellingINR,
+        cfrINR: tradePrices.cfrINR,
+        cifINR: tradePrices.cifINR
+    });
+    /* =====================================================
+       REVERSE
+    ===================================================== */
+    calculateReverse();
+    updateSizeTabPrices();
+}
+/* =========================================================
+   SIZE TAB FOB / m² PREVIEW
+========================================================= */
+function updateSizeTabPrices(){
+    const SQFT_PER_SQM = 10.7639104167;
+    const exportCost = exportExpenses();
+    const otherTotal =
+        num("otherUSD") * num("usdRate") +
+        num("otherINR");
+    const profitPerSqft = num("profitSqft");
+    const profitPercent = num("profitPercent");
+    document.querySelectorAll(".size-tab").forEach(tab => {
+        const size = tab.dataset.size;
+        const data = tileData[size];
+        const effectiveSqmBox =
+            getSqmPerBox(size, data.pcsBox);
+        const totalSqm =
+            effectiveSqmBox * data.boxesContainer;
+        const totalSqft =
+            totalSqm * SQFT_PER_SQM;
+        const tileExFactoryCost =
+            data.exFactory * totalSqft;
+        const totalFOBCost =
+            tileExFactoryCost +
+            exportCost +
+            otherTotal;
+        let profit = 0;
+        if(profitPercent > 0){
+            profit = totalFOBCost * profitPercent / 100;
+        } else {
+            profit = profitPerSqft * totalSqft;
+        }
+        const fobSellingINR =
+            totalFOBCost + profit;
+        const fobSqmINR =
+            totalSqm > 0 ? fobSellingINR / totalSqm : 0;
+        const usdRate = num("usdRate");
+        const usdPrice =
+            usdRate > 0 ? fobSqmINR / usdRate : 0;
+        const usdEl = tab.querySelector(".tab-usd-price");
+        if(usdEl){
+            usdEl.textContent = usdPrice.toLocaleString("en-IN", {
+                minimumFractionDigits:2,
+                maximumFractionDigits:2
+            });
+        }
+    });
+}
+/* =========================================================
+   CFR / CIF CALCULATOR
+========================================================= */
+function calculateTradePrices(
+    fobINR,
+    totalSqm,
+    currency,
+    rate
+){
+    /* CFR */
+    const freightCurrency =
+        num("freight");
+    const freightINR =
+        freightCurrency * rate;
+    const cfrINR =
+        fobINR + freightINR;
+    const cfrCurrency =
+        rate > 0
+            ? cfrINR / rate
+            : 0;
+    const cfrSqmINR =
+        totalSqm > 0
+            ? cfrINR / totalSqm
+            : 0;
+    const cfrSqmCurrency =
+        rate > 0
+            ? cfrSqmINR / rate
+            : 0;
+    $("cfrContainerINR").textContent =
+        moneyINR(cfrINR);
+    $("cfrContainerCurrency").textContent =
+        currencyMoney(
+            cfrCurrency,
+            currency
+        );
+    $("cfrSqmINR").textContent =
+        moneyINR(cfrSqmINR);
+    $("cfrSqmCurrency").textContent =
+        currencyMoney(
+            cfrSqmCurrency,
+            currency
+        );
+    /* CIF */
+    const cifFreightCurrency =
+        num("cifFreight");
+    const insuranceCurrency =
+        num("insurance");
+    const cifFreightINR =
+        cifFreightCurrency * rate;
+    const insuranceINR =
+        insuranceCurrency * rate;
+    const cifINR =
+        fobINR +
+        cifFreightINR +
+        insuranceINR;
+    const cifCurrency =
+        rate > 0
+            ? cifINR / rate
+            : 0;
+    const cifSqmINR =
+        totalSqm > 0
+            ? cifINR / totalSqm
+            : 0;
+    const cifSqmCurrency =
+        rate > 0
+            ? cifSqmINR / rate
+            : 0;
+    $("cifContainerINR").textContent =
+        moneyINR(cifINR);
+    $("cifContainerCurrency").textContent =
+        currencyMoney(
+            cifCurrency,
+            currency
+        );
+    $("cifSqmINR").textContent =
+        moneyINR(cifSqmINR);
+    $("cifSqmCurrency").textContent =
+        currencyMoney(
+            cifSqmCurrency,
+            currency
+        );
+    $("freightCurrencyDisplay").value =
+        currency;
+    return { cfrINR, cifINR };
+}
+/* =========================================================
+   REVERSE CALCULATOR
+========================================================= */
+function calculateReverse(){
+    const targetCurrencyPrice =
+        num("reverseTarget");
+    const boxes =
+        num("reverseBoxes");
+    const sqmBox =
+        num("sqmBox");
+    const reverseSqm =
+        boxes * sqmBox;
+    const reverseSqft =
+        reverseSqm * 10.7639104167;
+    const rate =
+        currentRate();
+    const targetContainerINR =
+        targetCurrencyPrice *
+        reverseSqm *
+        rate;
+    /*
+       Reverse calculator uses its own
+       profit / SQ.FT field.
+    */
+    const reverseProfitPerSqft =
+        num("reverseProfit");
+    const reverseProfit =
+        reverseProfitPerSqft *
+        reverseSqft;
+    /*
+       Export + Other expenses
+       are taken from current calculator.
+    */
+    const exportCost =
+        exportExpenses();
+    const otherUSDConverted =
+        num("otherUSD") *
+        num("usdRate");
+    const otherINR =
+        num("otherINR");
+    const otherTotal =
+        otherUSDConverted +
+        otherINR;
+    const maxExFactoryTotal =
+        targetContainerINR -
+        exportCost -
+        otherTotal -
+        reverseProfit;
+    const maxExFactorySqft =
+        reverseSqft > 0
+            ? maxExFactoryTotal /
+              reverseSqft
+            : 0;
+    $("reverseContainerINR").textContent =
+        moneyINR(targetContainerINR);
+    $("reverseExFactory").textContent =
+        moneyINR(maxExFactorySqft);
+    $("reverseTargetDisplay").textContent =
+        currencyMoney(
+            targetCurrencyPrice,
+            $("currency").value
+        );
+}
+/* =========================================================
+   ALL INPUT EVENTS
+========================================================= */
+document
+    .querySelectorAll("input, select")
+    .forEach(element => {
+        element.addEventListener(
+            "input",
+            calculate
+        );
+        element.addEventListener(
+            "change",
+            calculate
+        );
+    });
+/* =========================================================
+   SIZE TAB EVENTS
+========================================================= */
+document
+    .querySelectorAll(".size-tab")
+    .forEach(tab => {
+        tab.addEventListener(
+            "click",
+            function(){
+                loadSize(
+                    this.dataset.size
+                );
+            }
+        );
+    });
+/* =========================================================
+   INITIAL LOAD
+========================================================= */
+/*
+   IMPORTANT:
+   600x1200 is loaded directly.
+   selectedSize starts as null,
+   therefore its original data is NOT overwritten.
+*/
+loadSize("600x1200");
+updatePackingWarning();
+</script>
+</body>
+</html>
